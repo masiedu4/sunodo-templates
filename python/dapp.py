@@ -8,14 +8,26 @@ logger = logging.getLogger(__name__)
 rollup_server = environ["ROLLUP_HTTP_SERVER_URL"]
 logger.info(f"HTTP rollup_server url is {rollup_server}")
 
+def hex2str(hex):
+    """
+    Decodes a hex string into a regular string
+    """
+    return bytes.fromhex(hex[2:]).decode("utf-8")
 
 def handle_advance(data):
     logger.info(f"Received advance request data {data}")
+    input = hex2str(data["payload"])
+    logger.info(f"Adding notice with payload: '{input}'")
+    response = requests.post(rollup_server + "/notice", json={"payload": data["payload"]})
+    logger.info(f"Received notice status {response.status_code} body {response.content}")
     return "accept"
 
 
 def handle_inspect(data):
     logger.info(f"Received inspect request data {data}")
+    logger.info("Adding report")
+    response = requests.post(rollup_server + "/report", json={"payload": data["payload"]})
+    logger.info(f"Received report status {response.status_code}")
     return "accept"
 
 
